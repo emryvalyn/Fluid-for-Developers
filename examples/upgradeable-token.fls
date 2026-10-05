@@ -1,0 +1,34 @@
+# Upgradeable Token Example
+
+```fluid
+pragma fluid ^1.0;
+
+contract UpgradeableToken fluid upgradeable {
+    state persistent {
+        owner: address;
+        map<address, uint256> balances;
+    }
+
+    transaction transfer(address to, uint256 amount)
+    requires amount > 0 && balances[caller] >= amount
+    {
+        preflight {
+            Security.require_no_reentrancy();
+        }
+
+        atomic {
+            balances[caller] -= amount;
+            balances[to] += amount;
+        }
+    }
+
+    upgrade_policy {
+        authority: governance;
+        timelock: 72h;
+        require_schema_compatibility: true;
+        require_simulation: true;
+    }
+}
+```
+
+This example shows the basic shape of an upgradeable Fluid contract.

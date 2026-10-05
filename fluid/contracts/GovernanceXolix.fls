@@ -1,0 +1,26 @@
+# GovernanceXolix
+
+```fluid
+pragma fluid ^1.0;
+
+contract GovernanceXolix fluid upgradeable {
+    state persistent {
+        owner: address;
+        map<address, uint256> voting_power;
+        total_supply: uint256;
+    }
+
+    transaction delegate(address user, uint256 amount)
+    requires caller == owner && amount > 0
+    {
+        preflight {
+            Security.require_no_reentrancy();
+        }
+
+        atomic {
+            voting_power[user] += amount;
+            total_supply += amount;
+        }
+    }
+}
+```

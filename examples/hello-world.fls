@@ -1,0 +1,25 @@
+# Hello World Example
+
+```fluid
+pragma fluid ^1.0;
+
+contract HelloWorld fluid {
+    state persistent {
+        string message;
+    }
+
+    transaction setMessage(string newMessage)
+    requires newMessage != ""
+    {
+        preflight {
+            Security.require_no_reentrancy();
+        }
+
+        atomic {
+            message = newMessage;
+        }
+    }
+}
+```
+
+This is a minimal example to help a new developer understand how a contract is structured.
