@@ -1,28 +1,38 @@
 # Fluid for Developers
 
-Fluid for Developers is a curated learning repository for the XOLIX FLUID ecosystem and the native FluidScript language (`.fls`). It brings together the architecture, developer docs, language specs, examples, and contract patterns used across the XOLIX FLUID platform.
+Welcome to Fluid for Developers — a beginner-friendly learning repo for the XOLIX FLUID blockchain and its native FluidScript language.
 
-This repository is meant to help developers understand:
-- the XOLIX FLUID architecture
-- the native FluidScript language model
-- security and capability rules
-- upgrade-safe smart contract design
-- how to build with EVM-compatible tooling and native Fluid contracts
+This repository was created to help developers learn:
+- what XOLIX FLUID is
+- how the FluidScript language works
+- how to write native `.fls` contracts
+- how to think in terms of state, transactions, security, and upgrades
+- how to build on a blockchain that supports both EVM and native Fluid execution
 
 ## What is XOLIX FLUID?
-XOLIX FLUID is a blockchain infrastructure and execution environment that combines:
-- a native FluidScript execution model
-- EVM compatibility for Solidity contracts
-- upgrade-aware smart contract patterns
-- security capabilities, state isolation, and protocol tooling
+XOLIX FLUID combines:
+- a native FluidScript smart contract language
+- EVM compatibility for Solidity and standard Web3 tooling
+- capability-aware execution rules
+- upgrade-safe contract design
+- security-focused transaction patterns
 
-## Key developer entry points
-- `docs/getting-started/README.md` — start here
-- `docs/fluidscript/index.md` — language overview
-- `fluid/README.md` — compiler and language toolchain
-- `fluid/specification/` — language reference specs
-- `fluid/contracts/` — example native contracts
-- `examples/` — small learning examples
+It is designed for teams who want to build on a blockchain that supports both:
+- standard Ethereum-style development
+- native protocol-aware language features
+
+## Why this repo exists
+The original XOLIX FLUID infrastructure repo contains a lot of architecture, docs, and examples, but it is not yet a full beginner onboarding experience. This repo turns that into a learnable, structured path.
+
+## Learning path
+Start here:
+1. `docs/getting-started/README.md`
+2. `docs/learn-fluid-in-30-minutes.md`
+3. `docs/fluidscript/index.md`
+4. `fluid/specification/language.md`
+5. `fluid/specification/security.md`
+6. `examples/hello-world.fls`
+7. `examples/upgradeable-token.fls`
 
 ## Repository structure
 ```text
@@ -30,8 +40,9 @@ Fluid-for-Developers/
 ├── README.md
 ├── docs/
 │   ├── getting-started/
+│   ├── learn-fluid-in-30-minutes.md
 │   ├── fluidscript/
-│   └── developer-guide/
+│   └── tutorials/
 ├── fluid/
 │   ├── README.md
 │   ├── specification/
@@ -43,58 +54,55 @@ Fluid-for-Developers/
 └── LICENSE
 ```
 
-## Getting started
-1. Read the developer onboarding guide.
-2. Review the FluidScript overview.
-3. Read the language specification files.
-4. Open the example `.fls` contracts.
-5. Start building a small contract in the examples folder.
+## The main idea behind Fluid
+FluidScript is designed around a few principles:
+- explicit persistent state
+- transaction-based execution
+- preflight safety checks
+- atomic mutation logic
+- upgrade-aware contract development
+- capability and security enforcement
 
-## Example syntax
+It is a language for writing blockchain logic that is meant to be deterministic, readable, and easier to reason about than low-level bytecode.
+
+## First example
 ```fluid
 pragma fluid ^1.0;
 
-contract TokenSwap fluid upgradeable {
+contract HelloWorld fluid {
     state persistent {
-        owner: address;
-        map<address, uint256> balances;
+        string message;
     }
 
-    transaction transfer(address to, uint256 amount)
-    requires amount > 0 && balances[caller] >= amount
+    transaction setMessage(string newMessage)
+    requires newMessage != ""
     {
         preflight {
             Security.require_no_reentrancy();
         }
 
         atomic {
-            balances[caller] -= amount;
-            balances[to] += amount;
+            message = newMessage;
         }
     }
 }
 ```
 
-## Developer learning path
+## Developer roadmap
 ### Beginner
-- read `docs/getting-started/README.md`
-- read `docs/fluidscript/index.md`
-- read `fluid/specification/language.md`
+- Learn the syntax
+- Understand state and transactions
+- Write a minimal contract
 
 ### Intermediate
-- read `type-system.md`
-- read `security.md`
-- read `capabilities.md`
-- read `upgrades.md`
+- Add security checks and capabilities
+- Understand upgrade safety
+- Work with native contract patterns
 
 ### Advanced
-- review `fluid/contracts/*.fls`
-- inspect the compiler and execution model documents
-- build sample contracts in `examples/`
-- test upgrade safety and capability rules
+- Build production-grade contracts
+- Add governance and upgrade policies
+- Connect with EVM tooling and network infrastructure
 
-## Notes
-This repository is an educational and developer-focused extraction of the XOLIX FLUID ecosystem. It is meant to provide a practical path for developers who want to understand and write FluidScript in a real blockchain environment.
-
-## License
-This repository is a developer learning fork assembled from XOLIX FLUID project materials and examples.
+## Next step
+Open `docs/learn-fluid-in-30-minutes.md` and follow the guided path.

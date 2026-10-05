@@ -1,13 +1,16 @@
-# FluidScript Security Model
+# FluidScript Specification: security.md
 
-FluidScript is intended to operate under explicit security and capability rules.
+FluidScript is designed around explicit security controls.
 
-## Core security ideas
-- no reentrancy by default in critical paths
-- explicit `preflight` validation
-- capability-based permission checks
-- upgrade constraints to prevent unsafe contract changes
-- deterministic execution rules
+## Core idea
+Security should be part of the contract design, not an afterthought.
+
+## Common checks
+- reentrancy checks
+- caller validation
+- threshold conditions
+- capability validation
+- resource constraints
 
 ## Example
 ```fluid
@@ -26,15 +29,5 @@ requires amount > 0 && balances[caller] >= amount
 }
 ```
 
-## Security rules
-- use `preflight` for safety checks
-- minimize mutable state outside atomic blocks
-- validate capability and access conditions before mutation
-- enforce upgrade compatibility before activation
-
-## Security tooling
-The repo describes security, compile-time validation, and protocol-level checks such as:
-- capability validation
-- deterministic execution validation
-- risk threshold simulation
-- upgrade safety enforcement
+## Why this matters
+Without guard checks, contract logic can be exploited during execution or when state updates occur in unsafe order.

@@ -1,24 +1,43 @@
-# FluidScript Language Specification
+# FluidScript Specification: language.md
 
-FluidScript is a native smart contract language designed for security-aware, deterministic execution in the XOLIX FLUID ecosystem.
+This file is the core language reference for FluidScript.
 
-## Core syntax elements
-- `pragma fluid ^1.0;`
-- `contract Name fluid upgradeable { ... }`
-- `state persistent { ... }`
-- `transaction Name(...) requires ... { ... }`
-- `preflight { ... }`
-- `atomic { ... }`
+## 1. Language structure
+A typical FluidScript contract includes:
+- metadata
+- state
+- capability definitions
+- invariants
+- transactions
+- upgrade policy
 
-## Contract lifecycle
-1. Define contract metadata
-2. Declare persistent state
-3. Define capability rules
-4. Define invariants
-5. Define transactions
-6. Apply upgrade policy
+## 2. Data model
+FluidScript supports explicit native types such as:
+- `address`
+- `uint256`
+- `string`
+- `bool`
+- `bytes`
+- `map<K,V>`
+- `capability`
+- `resource`
 
-## Example
+## 3. Contract execution model
+The execution model is based on:
+- validation before mutation
+- atomic state application
+- security-aware transaction guards
+- deterministic behavior across execution contexts
+
+## 4. Design goals
+The language is intended to be:
+- readable
+- explicit
+- upgrade-aware
+- deterministic
+- safe by design
+
+## 5. Practical example
 ```fluid
 pragma fluid ^1.0;
 
@@ -30,7 +49,7 @@ contract XolixToken fluid upgradeable {
     }
 
     transaction mint(address to, uint256 amount)
-    requires amount > 0 && caller == owner
+    requires caller == owner && amount > 0
     {
         preflight {
             Security.require_no_reentrancy();
@@ -44,9 +63,4 @@ contract XolixToken fluid upgradeable {
 }
 ```
 
-## Design goals
-- readability
-- explicit state control
-- upgrade-aware development
-- deterministic execution
-- security-aware contract patterns
+This is the kind of pattern developers should study when learning the language.

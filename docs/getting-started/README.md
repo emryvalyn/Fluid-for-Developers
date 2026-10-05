@@ -1,101 +1,83 @@
-# Getting Started with FLUID and FluidScript
+# Getting Started with Fluid
 
-This guide is the recommended onboarding path for developers who want to understand XOLIX FLUID and the native FluidScript language.
+This section is your practical onboarding guide for the XOLIX FLUID ecosystem.
 
-## 1. Understand the system
-XOLIX FLUID blends several ideas:
-- a native smart contract language: FluidScript (`.fls`)
-- EVM compatibility for Solidity deployment and Web3 tooling
-- capability-based security and native upgrade patterns
-- protocol-level state and contract safety rules
+## 1. Learn the big picture
+XOLIX FLUID is designed to support:
+- a native FluidScript language
+- EVM-compatible development
+- security-aware contracts
+- protocol-level upgrade safety
 
-## 2. Learn the language model
-FluidScript is designed as a native capability-aware language for blockchain execution. It introduces concepts such as:
-- `state persistent` for persistent state
-- `transaction` for executable logic
-- `requires` for guard conditions
-- `preflight` checks for security validation
-- `atomic` execution blocks for deterministic state transitions
-- `upgradeable` contract design patterns
+The repo is built around the idea that developers can write on the native side while still staying compatible with Ethereum tooling.
 
-## 3. Learn from examples
-The repository includes example implementations in `fluid/contracts/`.
-Try to study these in order:
-1. `XolixNativeCoin.fls`
-2. `GovernanceXolix.fls`
-3. `QusdStablecoin.fls`
-4. `XolixVaultManager.fls`
-5. `XolixDaoTreasury.fls`
-
-## 4. Read the specification files
-The `fluid/specification` directory is the primary reference for the language. Start with:
-- `language.md`
-- `grammar.md`
-- `type-system.md`
-- `security.md`
-- `capabilities.md`
-- `upgrades.md`
-
-## 5. Build a minimal example
-Create a simple contract in `examples/`.
-A minimal pattern looks like this:
-
-```fluid
-pragma fluid ^1.0;
-
-contract SimpleVault fluid {
-    state persistent {
-        owner: address;
-        map<address, uint256> balances;
-    }
-
-    transaction deposit(uint256 amount)
-    requires amount > 0
-    {
-        preflight {
-            Security.require_no_reentrancy();
-        }
-
-        atomic {
-            balances[caller] += amount;
-        }
-    }
-}
-```
-
-## 6. Understand the execution model
-The repository describes a compiler pipeline:
-- Source (`.fls`)
-- Lexer and parser
-- AST generation
-- Type and capability checking
-- Code generation for XLS bytecode
-
-This makes FluidScript a deterministic, security-aware language for blockchain execution.
-
-## 7. Learn the EVM ecosystem too
-XOLIX FLUID is deliberately compatible with standard EVM workflows. Developers can continue using:
-- Solidity
-- MetaMask
-- Hardhat
-- Foundry
-- Ethers.js
-- Viem
-
-This is important because XOLIX FLUID doesn't require abandoning the broader Ethereum ecosystem.
-
-## 8. Beginner roadmap
-- Week 1: Learn types, state, transactions, and contract shapes
-- Week 2: Learn security, capabilities, and resource constraints
-- Week 3: Understand upgrade safety and state compatibility
-- Week 4: Build and test native .fls contracts
-
-## 9. Key files in this repo
+## 2. Read the overview docs
+Start with:
 - `README.md`
 - `docs/fluidscript/index.md`
 - `fluid/README.md`
-- `fluid/specification/language.md`
-- `fluid/contracts/`
 
-## 10. Recommended next step
-Start by reading the FluidScript overview and then open one of the native example contracts.
+## 3. Learn the core syntax
+The main language concepts are:
+- `pragma fluid`
+- `contract`
+- `state persistent`
+- `transaction`
+- `requires`
+- `preflight`
+- `atomic`
+- `upgrade_policy`
+
+## 4. Read the core specification files
+Read these in order:
+1. `fluid/specification/language.md`
+2. `fluid/specification/type-system.md`
+3. `fluid/specification/security.md`
+4. `fluid/specification/capabilities.md`
+5. `fluid/specification/contracts.md`
+6. `fluid/specification/upgrades.md`
+
+## 5. Study the examples
+Example contracts are in `fluid/contracts/`.
+Look at these one by one:
+- `XolixNativeCoin.fls`
+- `GovernanceXolix.fls`
+- `QusdStablecoin.fls`
+- `XolixVaultManager.fls`
+- `XolixDaoTreasury.fls`
+
+## 6. Write your own tiny contract
+Use the example in `examples/hello-world.fls`.
+From there, try:
+- storing a counter
+- adding deposit logic
+- adding transfer logic
+- adding owner-only functions
+
+## 7. Learn how devs use the blockchain
+The XOLIX FLUID docs also explain:
+- provider hooks
+- wallet setup
+- JSON-RPC access
+- EVM-compatible network configuration
+- contract deployment patterns
+
+This is important because developers may build with either:
+- Solidity + EVM tooling
+- native FluidScript + protocol APIs
+
+## 8. Build a simple learning workflow
+A good 4-step cycle is:
+1. read the spec
+2. inspect an example contract
+3. write a small contract
+4. test it conceptually against the security and upgrade rules
+
+## 9. Best advice for new developers
+Treat Fluid as a contract language with these traits:
+- explicit state
+- explicit transaction guards
+- security-first design
+- upgrade-aware development
+
+Do not try to memorize everything at once. Learn the patterns first.

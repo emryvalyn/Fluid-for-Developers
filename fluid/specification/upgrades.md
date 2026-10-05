@@ -1,18 +1,15 @@
-# FluidScript Upgrade Safety
+# FluidScript Specification: upgrades.md
 
-One of the defining ideas in XOLIX FLUID is upgrade-safe contract design.
+Upgrade safety is a core design concern in the XOLIX FLUID model.
 
-## Why upgrades are dangerous
-Traditional proxy patterns can fail when storage layout changes unexpectedly. FluidScript is designed to reduce that risk by evaluating compatibility before activation.
+## What upgrades mean
+Fluid contracts are meant to preserve:
+- contract identity
+- state continuity
+- upgrade governance rules
+- schema compatibility checks
 
-## Design principles
-- preserve state identity
-- maintain compatibility of state schema
-- validate interface compatibility
-- require upgrade simulation
-- support governance and timelocks
-
-## Example upgrade policy
+## Example
 ```fluid
 upgrade_policy {
     authority: governance;
@@ -23,14 +20,14 @@ upgrade_policy {
 }
 ```
 
-## Workflow
-1. compile new contract version
-2. validate compatibility against prior state
-3. simulate upgrade on a snapshot
-4. assess invariants
-5. require governance approval
-6. enforce timelock
-7. activate upgrade
+## Upgrade process
+1. Build new contract logic
+2. Validate compatibility with previous state
+3. Simulate the upgrade
+4. Run invariant checks
+5. Require governance approval
+6. Enforce timelock
+7. Activate the upgrade
 
-## Upgrade safety goal
-The goal is not to guarantee zero bugs but to make upgrade decisions safer, easier to audit, and more protocol-aware.
+## Important warning
+Storage layout changes are dangerous. Upgrade safety should not be treated as a developer convenience; it is protocol-level design.
