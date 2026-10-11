@@ -65,6 +65,7 @@ Welcome to **Fluid for Developers** — the official documentation, tutorial sui
 - 🎨 [QSC-721 NFT Standard](./docs/standards/QSC721-nft-standard.md) — Non-fungible tokens, digital assets, and metadata (`QSC721.fls`).
 - ⚖️ [QSC-352 Compliance / RWA Standard](./docs/standards/QSC352-compliance-tokens.md) — Regulated assets with on-chain KYC verification (`QSC352.fls`).
 - 🏛️ [QSC-4900 Multisig Vault Standard](./docs/standards/QSC4900-multisig-vaults.md) — $M$-of-$N$ threshold governance vault (`QSC4900.fls`).
+- 🔒 [Liquidity Pools & Liquidity Locking Guide](./docs/standards/liquidity-locking-guide.md) — How AMM pools work, LP token generation, and on-chain liquidity locking.
 
 ### 6. End-to-End Tutorials
 - 🛠️ [Tutorial 1: Toolchain & CLI Setup](./docs/tutorials/01-environment-and-cli.md) — Installing `@xolix/fluid-cli` and configuring IDEs.
@@ -151,6 +152,7 @@ Fluid-for-Developers/
     ├── escrow.fls          # 2-of-3 decentralized escrow
     ├── staking-rewards.fls # Yield staking pool with time-weighted rewards
     ├── dex-amm-pool.fls    # AMM constant-product liquidity pool
+    ├── liquidity-locker.fls# On-chain DEX liquidity locker
     ├── upgradeable-token.fls# Native proxy-free upgradeable token
     └── sdk/                # Runnable TypeScript SDK scripts
         ├── 01-connect-provider.ts

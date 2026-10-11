@@ -1,0 +1,79 @@
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
+
+interface IQSC20 {
+    public balanceOf(account: address): uint256;
+    public transfer(to: address, amount: uint256): bool;
+    public transferFrom(from: address, to: address, amount: uint256): bool;
+}
+
+/**
+ * LiquidityLocker
+ * Production-ready Liquidity Locker for DEX LP tokens on XOLIX FLUID.
+ * Allows project creators to lock LP tokens until an unlock timestamp to guarantee investor safety.
+ */
+contract LiquidityLocker {
+    state persistent {
+        owner: address;
+        lockCount: uint256;
+        locks: map<uint256, LockRecord>;
+        userLockIds: map<address, uint256[]>;
+    }
+
+    struct LockRecord {
+        id: uint256;
+        tokenAddress: address;
+        owner: address;
+        amount: uint256;
+        unlockTimestamp: uint256;
+        isWithdrawn: bool;
+    }
+
+    constructor() {
+        state.owner = msg.sender;
+        state.lockCount = 0;
+    }
+
+    public lockLiquidity(lpToken: address, amount: uint256, lockDurationSeconds: uint256): uint256 {
+        require(amount > 0, "Locker: Lock amount must be greater than zero");
+        require(lockDurationSeconds >= 86400, "Locker: Minimum lock duration is 24 hours (86,400s)");
+
+        state.lockCount = state.lockCount + 1;
+        let lockId = state.lockCount;
+
+        state.locks[lockId].id = lockId;
+        state.locks[lockId].tokenAddress = lpToken;
+        state.locks[lockId].owner = msg.sender;
+        state.locks[lockId].amount = amount;
+        state.locks[lockId].unlockTimestamp = block.timestamp + lockDurationSeconds;
+        state.locks[lockId].isWithdrawn = false;
+
+        state.userLockIds[msg.sender].push(lockId);
+
+        // Transfer LP tokens from user into the locker
+        let token = IQSC20(lpToken);
+        require(token.transferFrom(msg.sender, this.address, amount), "Locker: LP transferFrom failed");
+
+        return lockId;
+    }
+
+    public withdrawLiquidity(lockId: uint256): bool {
+        require(lockId > 0 && lockId <= state.lockCount, "Locker: Invalid lock ID");
+        require(msg.sender == state.locks[lockId].owner, "Locker: Only lock owner can withdraw");
+        require(!state.locks[lockId].isWithdrawn, "Locker: Liquidity already withdrawn");
+        require(block.timestamp >= state.locks[lockId].unlockTimestamp, "Locker: Lock period has not expired yet");
+
+        state.locks[lockId].isWithdrawn = true;
+        let amount = state.locks[lockId].amount;
+        let token = IQSC20(state.locks[lockId].tokenAddress);
+
+        require(token.transfer(msg.sender, amount), "Locker: Withdrawal transfer failed");
+        return true;
+    }
+
+    public getLock(lockId: uint256): (address, address, uint256, uint256, bool) {
+        require(lockId > 0 && lockId <= state.lockCount, "Locker: Nonexistent lock ID");
+        let l = state.locks[lockId];
+        return (l.tokenAddress, l.owner, l.amount, l.unlockTimestamp, l.isWithdrawn);
+    }
+}
