@@ -1,0 +1,79 @@
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
+
+interface IQSC20 {
+    public transfer(to: address, amount: uint256): bool;
+    public transferFrom(from: address, to: address, amount: uint256): bool;
+}
+
+contract StakingRewards {
+    state persistent {
+        owner: address;
+        stakingToken: address;
+        rewardToken: address;
+        rewardRatePerSecond: uint256;
+        totalStaked: uint256;
+        lastUpdateTime: uint256;
+        rewardPerTokenStored: uint256;
+        userRewardPerTokenPaid: map<address, uint256>;
+        rewards: map<address, uint256>;
+        balances: map<address, uint256>;
+    }
+
+    constructor(stakeToken: address, rewToken: address, rate: uint256) {
+        state.owner = msg.sender;
+        state.stakingToken = stakeToken;
+        state.rewardToken = rewToken;
+        state.rewardRatePerSecond = rate;
+        state.totalStaked = 0;
+        state.lastUpdateTime = block.timestamp;
+        state.rewardPerTokenStored = 0;
+    }
+
+    public updateReward(account: address) {
+        if (state.totalStaked > 0) {
+            let timeDiff = block.timestamp - state.lastUpdateTime;
+            state.rewardPerTokenStored = state.rewardPerTokenStored + (timeDiff * state.rewardRatePerSecond * 1000000000000000000) / state.totalStaked;
+        }
+        state.lastUpdateTime = block.timestamp;
+
+        if (account != address(0)) {
+            let earned = (state.balances[account] * (state.rewardPerTokenStored - state.userRewardPerTokenPaid[account])) / 1000000000000000000;
+            state.rewards[account] = state.rewards[account] + earned;
+            state.userRewardPerTokenPaid[account] = state.rewardPerTokenStored;
+        }
+    }
+
+    public stake(amount: uint256) {
+        require(amount > 0, "Staking: Cannot stake 0");
+        this.updateReward(msg.sender);
+
+        state.totalStaked = state.totalStaked + amount;
+        state.balances[msg.sender] = state.balances[msg.sender] + amount;
+
+        let token = IQSC20(state.stakingToken);
+        require(token.transferFrom(msg.sender, this.address, amount), "Staking: Transfer failed");
+    }
+
+    public withdraw(amount: uint256) {
+        require(amount > 0, "Staking: Cannot withdraw 0");
+        require(state.balances[msg.sender] >= amount, "Staking: Insufficient staked balance");
+        this.updateReward(msg.sender);
+
+        state.totalStaked = state.totalStaked - amount;
+        state.balances[msg.sender] = state.balances[msg.sender] - amount;
+
+        let token = IQSC20(state.stakingToken);
+        require(token.transfer(msg.sender, amount), "Staking: Token transfer failed");
+    }
+
+    public claimReward() {
+        this.updateReward(msg.sender);
+        let reward = state.rewards[msg.sender];
+        if (reward > 0) {
+            state.rewards[msg.sender] = 0;
+            let token = IQSC20(state.rewardToken);
+            require(token.transfer(msg.sender, reward), "Staking: Reward transfer failed");
+        }
+    }
+}

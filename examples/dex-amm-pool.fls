@@ -1,0 +1,115 @@
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
+
+interface IQSC20 {
+    public transfer(to: address, amount: uint256): bool;
+    public transferFrom(from: address, to: address, amount: uint256): bool;
+}
+
+contract DexAmmPool {
+    state persistent {
+        owner: address;
+        tokenA: address;
+        tokenB: address;
+        reserveA: uint256;
+        reserveB: uint256;
+        totalLpShares: uint256;
+        lpShares: map<address, uint256>;
+        feeBasisPoints: uint256; // 30 = 0.3%
+    }
+
+    constructor(token0: address, token1: address) {
+        state.owner = msg.sender;
+        state.tokenA = token0;
+        state.tokenB = token1;
+        state.reserveA = 0;
+        state.reserveB = 0;
+        state.totalLpShares = 0;
+        state.feeBasisPoints = 30; // 0.3% swap fee
+    }
+
+    public getReserves(): (uint256, uint256) {
+        return (state.reserveA, state.reserveB);
+    }
+
+    public addLiquidity(amountA: uint256, amountB: uint256): uint256 {
+        require(amountA > 0 && amountB > 0, "AMM: Amounts must be greater than zero");
+
+        let shares = 0;
+        if (state.totalLpShares == 0) {
+            shares = sqrt(amountA * amountB);
+        } else {
+            let shareA = (amountA * state.totalLpShares) / state.reserveA;
+            let shareB = (amountB * state.totalLpShares) / state.reserveB;
+            shares = min(shareA, shareB);
+        }
+
+        require(shares > 0, "AMM: Insufficient liquidity minted");
+
+        state.reserveA = state.reserveA + amountA;
+        state.reserveB = state.reserveB + amountB;
+        state.totalLpShares = state.totalLpShares + shares;
+        state.lpShares[msg.sender] = state.lpShares[msg.sender] + shares;
+
+        let tA = IQSC20(state.tokenA);
+        let tB = IQSC20(state.tokenB);
+        require(tA.transferFrom(msg.sender, this.address, amountA), "AMM: Transfer A failed");
+        require(tB.transferFrom(msg.sender, this.address, amountB), "AMM: Transfer B failed");
+
+        return shares;
+    }
+
+    public removeLiquidity(shares: uint256): (uint256, uint256) {
+        require(shares > 0, "AMM: Shares must be greater than zero");
+        require(state.lpShares[msg.sender] >= shares, "AMM: Insufficient LP shares");
+
+        let amountA = (shares * state.reserveA) / state.totalLpShares;
+        let amountB = (shares * state.reserveB) / state.totalLpShares;
+
+        state.lpShares[msg.sender] = state.lpShares[msg.sender] - shares;
+        state.totalLpShares = state.totalLpShares - shares;
+        state.reserveA = state.reserveA - amountA;
+        state.reserveB = state.reserveB - amountB;
+
+        let tA = IQSC20(state.tokenA);
+        let tB = IQSC20(state.tokenB);
+        require(tA.transfer(msg.sender, amountA), "AMM: Return A failed");
+        require(tB.transfer(msg.sender, amountB), "AMM: Return B failed");
+
+        return (amountA, amountB);
+    }
+
+    public swap(tokenIn: address, amountIn: uint256): uint256 {
+        require(tokenIn == state.tokenA || tokenIn == state.tokenB, "AMM: Invalid token");
+        require(amountIn > 0, "AMM: Zero amount in");
+
+        let isTokenA = tokenIn == state.tokenA;
+        let resIn = isTokenA ? state.reserveA : state.reserveB;
+        let resOut = isTokenA ? state.reserveB : state.reserveA;
+
+        let amountInWithFee = amountIn * (10000 - state.feeBasisPoints);
+        let numerator = amountInWithFee * resOut;
+        let denominator = (resIn * 10000) + amountInWithFee;
+        let amountOut = numerator / denominator;
+
+        require(amountOut > 0, "AMM: Insufficient output amount");
+
+        if (isTokenA) {
+            state.reserveA = state.reserveA + amountIn;
+            state.reserveB = state.reserveB - amountOut;
+            let tA = IQSC20(state.tokenA);
+            let tB = IQSC20(state.tokenB);
+            require(tA.transferFrom(msg.sender, this.address, amountIn), "AMM: In transfer failed");
+            require(tB.transfer(msg.sender, amountOut), "AMM: Out transfer failed");
+        } else {
+            state.reserveB = state.reserveB + amountIn;
+            state.reserveA = state.reserveA - amountOut;
+            let tB = IQSC20(state.tokenB);
+            let tA = IQSC20(state.tokenA);
+            require(tB.transferFrom(msg.sender, this.address, amountIn), "AMM: In transfer failed");
+            require(tA.transfer(msg.sender, amountOut), "AMM: Out transfer failed");
+        }
+
+        return amountOut;
+    }
+}

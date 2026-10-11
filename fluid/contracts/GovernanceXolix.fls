@@ -1,26 +1,103 @@
-# GovernanceXolix
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
 
-```fluid
-pragma fluid ^1.0;
-
-contract GovernanceXolix fluid upgradeable {
+contract GovernanceXolix {
     state persistent {
         owner: address;
-        map<address, uint256> voting_power;
-        total_supply: uint256;
+        proposalCount: uint256;
+        votingDelay: uint256;
+        votingPeriod: uint256;
+        quorumVotes: uint256;
+        timelockDelay: uint256;
+        votingPower: map<address, uint256>;
+        delegates: map<address, address>;
+        proposals: map<uint256, Proposal>;
     }
 
-    transaction delegate(address user, uint256 amount)
-    requires caller == owner && amount > 0
-    {
-        preflight {
-            Security.require_no_reentrancy();
+    struct Proposal {
+        id: uint256;
+        proposer: address;
+        targetContract: address;
+        callData: bytes;
+        eta: uint256;
+        forVotes: uint256;
+        againstVotes: uint256;
+        canceled: bool;
+        executed: bool;
+    }
+
+    constructor(initialQuorum: uint256, delay: uint256, period: uint256) {
+        state.owner = msg.sender;
+        state.proposalCount = 0;
+        state.quorumVotes = initialQuorum;
+        state.votingDelay = delay;
+        state.votingPeriod = period;
+        state.timelockDelay = 172800; // 48 hour timelock
+        state.votingPower[msg.sender] = initialQuorum * 2;
+    }
+
+    public delegate(delegatee: address) {
+        state.delegates[msg.sender] = delegatee;
+    }
+
+    public getVotingPower(account: address): uint256 {
+        return state.votingPower[account];
+    }
+
+    public propose(target: address, payload: bytes): uint256 {
+        require(state.votingPower[msg.sender] >= state.quorumVotes / 10, "Gov: Insufficient voting power to propose");
+
+        state.proposalCount = state.proposalCount + 1;
+        let pId = state.proposalCount;
+
+        state.proposals[pId].id = pId;
+        state.proposals[pId].proposer = msg.sender;
+        state.proposals[pId].targetContract = target;
+        state.proposals[pId].callData = payload;
+        state.proposals[pId].eta = block.timestamp + state.votingDelay + state.votingPeriod + state.timelockDelay;
+        state.proposals[pId].forVotes = 0;
+        state.proposals[pId].againstVotes = 0;
+        state.proposals[pId].canceled = false;
+        state.proposals[pId].executed = false;
+
+        return pId;
+    }
+
+    public castVote(proposalId: uint256, support: bool): bool {
+        require(proposalId > 0 && proposalId <= state.proposalCount, "Gov: Invalid proposal ID");
+        require(!state.proposals[proposalId].canceled, "Gov: Proposal canceled");
+        require(!state.proposals[proposalId].executed, "Gov: Proposal already executed");
+
+        let weight = state.votingPower[msg.sender];
+        require(weight > 0, "Gov: Caller has zero voting power");
+
+        if (support) {
+            state.proposals[proposalId].forVotes = state.proposals[proposalId].forVotes + weight;
+        } else {
+            state.proposals[proposalId].againstVotes = state.proposals[proposalId].againstVotes + weight;
         }
 
-        atomic {
-            voting_power[user] += amount;
-            total_supply += amount;
-        }
+        return true;
+    }
+
+    public execute(proposalId: uint256): bool {
+        require(proposalId > 0 && proposalId <= state.proposalCount, "Gov: Invalid proposal ID");
+        require(!state.proposals[proposalId].executed, "Gov: Already executed");
+        require(!state.proposals[proposalId].canceled, "Gov: Proposal was canceled");
+        require(block.timestamp >= state.proposals[proposalId].eta, "Gov: Timelock has not expired");
+        require(state.proposals[proposalId].forVotes > state.proposals[proposalId].againstVotes, "Gov: Proposal was rejected");
+        require(state.proposals[proposalId].forVotes >= state.quorumVotes, "Gov: Quorum not reached");
+
+        state.proposals[proposalId].executed = true;
+
+        let target = state.proposals[proposalId].targetContract;
+        let payload = state.proposals[proposalId].callData;
+
+        return target.call(payload);
+    }
+
+    @owner
+    public setVotingPower(account: address, amount: uint256) {
+        state.votingPower[account] = amount;
     }
 }
-```

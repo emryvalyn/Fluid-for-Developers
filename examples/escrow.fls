@@ -1,0 +1,60 @@
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
+
+contract Escrow {
+    state persistent {
+        buyer: address;
+        seller: address;
+        arbiter: address;
+        amount: uint256;
+        isFunded: bool;
+        isReleased: bool;
+        isRefunded: bool;
+    }
+
+    constructor(sellerAddress: address, arbiterAddress: address) {
+        state.buyer = msg.sender;
+        state.seller = sellerAddress;
+        state.arbiter = arbiterAddress;
+        state.amount = 0;
+        state.isFunded = false;
+        state.isReleased = false;
+        state.isRefunded = false;
+    }
+
+    public deposit() {
+        require(msg.sender == state.buyer, "Escrow: Only buyer can deposit");
+        require(!state.isFunded, "Escrow: Already funded");
+        require(msg.value > 0, "Escrow: Deposit value must be greater than zero");
+
+        state.amount = msg.value;
+        state.isFunded = true;
+    }
+
+    public release() {
+        require(msg.sender == state.buyer || msg.sender == state.arbiter, "Escrow: Only buyer or arbiter can release");
+        require(state.isFunded, "Escrow: Not funded");
+        require(!state.isReleased, "Escrow: Already released");
+        require(!state.isRefunded, "Escrow: Already refunded");
+
+        state.isReleased = true;
+        transferNative(state.seller, state.amount);
+    }
+
+    public refund() {
+        require(msg.sender == state.seller || msg.sender == state.arbiter, "Escrow: Only seller or arbiter can refund");
+        require(state.isFunded, "Escrow: Not funded");
+        require(!state.isReleased, "Escrow: Already released");
+        require(!state.isRefunded, "Escrow: Already refunded");
+
+        state.isRefunded = true;
+        transferNative(state.buyer, state.amount);
+    }
+
+    public getStatus(): string {
+        if (!state.isFunded) return "Awaiting Deposit";
+        if (state.isReleased) return "Released to Seller";
+        if (state.isRefunded) return "Refunded to Buyer";
+        return "Funds in Escrow";
+    }
+}

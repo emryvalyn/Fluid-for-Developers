@@ -1,108 +1,174 @@
-# Fluid for Developers
+<!-- Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved. -->
+# Fluid for Developers: The Complete XOLIX FLUID Developer Hub
 
-Welcome to Fluid for Developers — a beginner-friendly learning repo for the XOLIX FLUID blockchain and its native FluidScript language.
+Welcome to **Fluid for Developers** — the official documentation, tutorial suite, and architectural reference for building decentralized applications, sovereign wallets, and smart contracts on the **XOLIX FLUID** blockchain.
 
-This repository was created to help developers learn:
-- what XOLIX FLUID is
-- how the FluidScript language works
-- how to write native `.fls` contracts
-- how to think in terms of state, transactions, security, and upgrades
-- how to build on a blockchain that supports both EVM and native Fluid execution
+---
 
-## What is XOLIX FLUID?
-XOLIX FLUID combines:
-- a native FluidScript smart contract language
-- EVM compatibility for Solidity and standard Web3 tooling
-- capability-aware execution rules
-- upgrade-safe contract design
-- security-focused transaction patterns
+## 🌟 What is XOLIX FLUID?
 
-It is designed for teams who want to build on a blockchain that supports both:
-- standard Ethereum-style development
-- native protocol-aware language features
+**XOLIX FLUID** is an enterprise-grade Layer-1 blockchain featuring a **Dual-Lane Execution Engine**:
+1. **The Native FLUID Lane (`.fls`)**: High-performance, capability-aware, proxy-free smart contract execution running on the native `XolixVM`.
+2. **The EVM Lane (`0x...`)**: 100% Ethereum-compatible execution supporting Solidity, Vyper, Hardhat, Foundry, Wagmi, and Viem out of the box.
 
-## Why this repo exists
-The original XOLIX FLUID infrastructure repo contains a lot of architecture, docs, and examples, but it is not yet a full beginner onboarding experience. This repo turns that into a learnable, structured path.
+---
 
-## Learning path
-Start here:
-1. `docs/getting-started/README.md`
-2. `docs/learn-fluid-in-30-minutes.md`
-3. `docs/fluidscript/index.md`
-4. `fluid/specification/language.md`
-5. `fluid/specification/security.md`
-6. `examples/hello-world.fls`
-7. `examples/upgradeable-token.fls`
+## 🚀 Quick Reference: Network Parameters
 
-## Repository structure
-```text
-Fluid-for-Developers/
-├── README.md
-├── docs/
-│   ├── getting-started/
-│   ├── learn-fluid-in-30-minutes.md
-│   ├── fluidscript/
-│   └── tutorials/
-├── fluid/
-│   ├── README.md
-│   ├── specification/
-│   ├── contracts/
-│   └── standard-library/
-├── examples/
-├── glossary.md
-├── roadmap.md
-└── LICENSE
-```
+| Parameter | Mainnet (`AegisMesh v1.1.0`) | Testnet Sandbox |
+| :--- | :--- | :--- |
+| **Network Name** | `XOLIXBlock Mainnet` / `XOLIX FLUID` | `XOLIXBlock Testnet Sandbox` |
+| **Chain ID** | **`44990`** (`0xAFBE`) | **`44991`** (`0xAFBF`) |
+| **Native Currency** | `XOLT` / `XOL` (18 decimals) | `tXOL` (18 decimals) |
+| **Public HTTPS RPC** | `https://rpc.xolix.io` | `https://testnet-rpc.xolix.io` |
+| **Public WebSocket** | `wss://ws.xolix.io` | `wss://ws-testnet.xolix.io` |
+| **Block Explorer** | [scan.xolix.io](https://scan.xolix.io) | [scan.xolix.io/testnet](https://scan.xolix.io/testnet) |
+| **Target Block Time** | 2.0 seconds | 2.0 seconds |
+| **Address Formats** | `xol1...` (User), `xolc1...` (Contract), `0x...` (EVM) | `xol1...` (User), `xolc1...` (Contract), `0x...` (EVM) |
 
-## The main idea behind Fluid
-FluidScript is designed around a few principles:
-- explicit persistent state
-- transaction-based execution
-- preflight safety checks
-- atomic mutation logic
-- upgrade-aware contract development
-- capability and security enforcement
+---
 
-It is a language for writing blockchain logic that is meant to be deterministic, readable, and easier to reason about than low-level bytecode.
+## 📚 Complete Documentation Index
 
-## First example
+### 1. Getting Started
+- 📖 [Architecture & Overview](./docs/getting-started/01-overview.md) — The dual-lane model, consensus, and security philosophy.
+- ⚡ [Quickstart in 10 Minutes](./docs/getting-started/02-quickstart-in-10-minutes.md) — From zero to your first deployed contract.
+- 🌐 [Network Environments & Endpoints](./docs/getting-started/03-network-and-endpoints.md) — Complete public DNS endpoints, chain IDs, and rate limits.
+- ⏱️ [Learn Fluid in 30 Minutes](./docs/learn-fluid-in-30-minutes.md) — Fast-track tutorial for Solidity & Web3 developers.
+
+### 2. FluidScript (`.fls`) Language Guide
+- 📝 [Syntax, Structure & Lifecycle](./docs/fluidscript/01-syntax-and-structure.md) — Contract anatomy, state persistent, and execution models.
+- 🔢 [Type System Reference](./docs/fluidscript/02-type-system.md) — Primitives, checked arithmetic, maps, structs, and arrays.
+- 🛡️ [Native Capabilities & Access Control](./docs/fluidscript/03-capabilities-and-permissions.md) — Protocol-level `@owner` and `@governance` decorators.
+- 🔄 [Preflight & Atomic Execution Engine](./docs/fluidscript/04-preflight-and-atomic-execution.md) — Two-phase transaction validation.
+- 🔗 [Multi-Contract Interactions & Factories](./docs/fluidscript/05-multi-contract-interactions.md) — Interfaces, external calls, and `create`.
+- 🚀 [Proxy-Free Upgrades](./docs/fluidscript/06-proxy-free-upgrades.md) — Native logic pointer updates and append-only schemas.
+- ⛽ [Gas & XCU Optimization](./docs/fluidscript/07-gas-and-xcu-optimization.md) — Multidimensional XCU gas calculations and savings.
+
+### 3. Official TypeScript SDK (`@xolix/sdk`)
+- 💻 [SDK Architecture & Overview](./docs/sdk/overview.md) — Modules, interfaces, and quick-start patterns.
+- 📦 [Installation & Setup](./docs/sdk/01-installation-and-setup.md) — Node.js, TypeScript, Next.js, and Vite configuration.
+- 🌐 [Providers & Real-Time WebSockets](./docs/sdk/02-providers-and-rpc.md) — `JsonRpcProvider`, `WebSocketProvider`, and event hooks.
+- 🔑 [Wallets, BIP-39 & Addresses](./docs/sdk/03-wallets-and-keys.md) — 24-word mnemonics, Bech32m `xol1...`, stealth addresses, and signing.
+- 📜 [Smart Contract Interactions](./docs/sdk/04-contract-interaction.md) — Zero-gas view calls (`read`) and state writes (`write`).
+- 🏭 [ContractFactory Deployment](./docs/sdk/05-contract-deployment.md) — Programmatic deployment and bytecode execution.
+- 🔍 [Preflight Simulation Engine](./docs/sdk/06-preflight-and-simulation.md) — Pre-broadcast risk scoring and XCU estimation.
+
+### 4. DApp & Wallet Integrations
+- 🦊 [Browser Wallet Integration](./docs/dapps/01-wallet-integration.md) — EIP-1193, MetaMask, Xolix Wallet, and network switching.
+- ⚛️ [React, Wagmi v2 & Viem](./docs/dapps/02-react-and-wagmi.md) — React hooks, custom chain definitions, and UI components.
+- 🛠️ [Ethers.js (v5/v6) & Web3.js](./docs/dapps/03-ethers-and-web3.md) — Node.js backends and legacy integration guides.
+- 📊 [Transaction Lifecycle & Receipts](./docs/dapps/04-transaction-lifecycle.md) — Mempool states, event subscriptions, and VM error codes.
+
+### 5. Token & Contract Standards
+- 🪙 [QSC-20 Fungible Token Standard](./docs/standards/QSC20-fungible-tokens.md) — The standard currency token specification (`QSC20.fls`).
+- 🎨 [QSC-721 NFT Standard](./docs/standards/QSC721-nft-standard.md) — Non-fungible tokens, digital assets, and metadata (`QSC721.fls`).
+- ⚖️ [QSC-352 Compliance / RWA Standard](./docs/standards/QSC352-compliance-tokens.md) — Regulated assets with on-chain KYC verification (`QSC352.fls`).
+- 🏛️ [QSC-4900 Multisig Vault Standard](./docs/standards/QSC4900-multisig-vaults.md) — $M$-of-$N$ threshold governance vault (`QSC4900.fls`).
+
+### 6. End-to-End Tutorials
+- 🛠️ [Tutorial 1: Toolchain & CLI Setup](./docs/tutorials/01-environment-and-cli.md) — Installing `@xolix/fluid-cli` and configuring IDEs.
+- 🚀 [Tutorial 2: Hello World Contract](./docs/tutorials/02-hello-world-contract.md) — Writing, testing, and deploying your first `.fls` contract.
+- 🪙 [Tutorial 3: Launching a QSC-20 Token](./docs/tutorials/03-deploying-qsc20-token.md) — Deploying your own token in 5 minutes.
+- 🖼️ [Tutorial 4: Building an NFT Collection](./docs/tutorials/04-building-nft-collection.md) — Minting and trading NFTs on XOLIX.
+- 📈 [Tutorial 5: Building a DeFi AMM Pool](./docs/tutorials/05-building-defi-dex-amm.md) — Constant-product ($x \cdot y = k$) decentralized exchange.
+- 🔄 [Tutorial 6: Safe Proxy-Free Upgrades](./docs/tutorials/06-upgrading-contracts-safely.md) — Simulating and activating V2 contract logic.
+
+### 7. Security & Auditing
+- ✅ [25-Point Security Audit Checklist](./docs/security/audit-checklist.md) — Mandatory verification before mainnet launch.
+- ⚠️ [Common Pitfalls & Mitigations](./docs/security/common-pitfalls.md) — Reentrancy, overflows, flash-loan vulnerabilities, and MEV.
+- 🔍 [BIP-350 Address Validation](./docs/security/address-validation.md) — Checksum verification and format translation.
+
+### 8. Public Explorer & Node APIs
+- 🔎 [XolixScan REST API Guide](./docs/api/explorer-api.md) — Blocks, transactions, account history, and contract verification.
+- 📡 [JSON-RPC Reference](./docs/api/rpc-reference.md) — Full list of standard and native (`xol_*`) methods.
+- 🚰 [Testnet Faucet Guide](./docs/api/faucet-guide.md) — Obtaining free `tXOL` for sandbox development.
+
+---
+
+## 💻 Code Example: Writing a Fluid Token in 30 Seconds
+
 ```fluid
-pragma fluid ^1.0;
+version 1.0;
 
-contract HelloWorld fluid {
+contract SimpleCoin {
     state persistent {
-        string message;
+        owner: address;
+        totalSupply: uint256;
+        balances: map<address, uint256>;
     }
 
-    transaction setMessage(string newMessage)
-    requires newMessage != ""
-    {
-        preflight {
-            Security.require_no_reentrancy();
-        }
+    constructor(initialSupply: uint256) {
+        state.owner = msg.sender;
+        state.totalSupply = initialSupply;
+        state.balances[msg.sender] = initialSupply;
+    }
 
-        atomic {
-            message = newMessage;
-        }
+    public balanceOf(account: address): uint256 {
+        return state.balances[account];
+    }
+
+    public transfer(to: address, amount: uint256): bool {
+        require(state.balances[msg.sender] >= amount, "Insufficient balance");
+        state.balances[msg.sender] = state.balances[msg.sender] - amount;
+        state.balances[to] = state.balances[to] + amount;
+        return true;
+    }
+
+    @owner
+    public mint(to: address, amount: uint256) {
+        state.totalSupply = state.totalSupply + amount;
+        state.balances[to] = state.balances[to] + amount;
     }
 }
 ```
 
-## Developer roadmap
-### Beginner
-- Learn the syntax
-- Understand state and transactions
-- Write a minimal contract
+---
 
-### Intermediate
-- Add security checks and capabilities
-- Understand upgrade safety
-- Work with native contract patterns
+## 📂 Repository Layout
 
-### Advanced
-- Build production-grade contracts
-- Add governance and upgrade policies
-- Connect with EVM tooling and network infrastructure
+```text
+Fluid-for-Developers/
+├── README.md               # Master Developer Hub (You are here)
+├── LICENSE                 # Public Apache-2.0 / MIT License
+├── glossary.md             # Developer Glossary of Terms
+├── roadmap.md              # Public Ecosystem Roadmap
+├── docs/                   # Full Documentation Modules
+│   ├── getting-started/    # Architecture, quickstarts, network details
+│   ├── fluidscript/        # Language specification & syntax
+│   ├── sdk/                # Official TypeScript SDK reference
+│   ├── dapps/              # Wallet and frontend integration guides
+│   ├── standards/          # QSC-20, QSC-721, QSC-352, QSC-4900
+│   ├── tutorials/          # Step-by-step guides from zero to production
+│   ├── security/           # 25-point audit checklist & address validation
+│   └── api/                # XolixScan REST API & JSON-RPC reference
+├── fluid/
+│   ├── contracts/          # Standard Fluid contracts (QSC20, QSC721, etc.)
+│   └── specification/      # Deep language grammar & execution specs
+└── examples/
+    ├── hello-world.fls     # Minimal compilable contract
+    ├── counter.fls         # Stateful counter example
+    ├── escrow.fls          # 2-of-3 decentralized escrow
+    ├── staking-rewards.fls # Yield staking pool with time-weighted rewards
+    ├── dex-amm-pool.fls    # AMM constant-product liquidity pool
+    ├── upgradeable-token.fls# Native proxy-free upgradeable token
+    └── sdk/                # Runnable TypeScript SDK scripts
+        ├── 01-connect-provider.ts
+        ├── 02-wallet-management.ts
+        ├── 03-deploy-token.ts
+        ├── 04-interact-contract.ts
+        ├── 05-simulate-preflight.ts
+        └── 06-frontend-wallet-hook.tsx
+```
 
-## Next step
-Open `docs/learn-fluid-in-30-minutes.md` and follow the guided path.
+---
+
+## 🤝 Community & Contributing
+
+- **GitHub Issues**: Report documentation errata or propose standard extensions via GitHub issues.
+- **Developer Discord**: Join our engineering community for active dev support.
+- **Grants Program**: Building an innovative dApp on XOLIX? Apply for ecosystem builder grants.
+
+---
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License").

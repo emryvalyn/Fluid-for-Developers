@@ -1,34 +1,41 @@
-# Upgradeable Token Example
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
 
-```fluid
-pragma fluid ^1.0;
-
-contract UpgradeableToken fluid upgradeable {
+contract UpgradeableToken {
     state persistent {
         owner: address;
-        map<address, uint256> balances;
+        governance: address;
+        name: string;
+        symbol: string;
+        totalSupply: uint256;
+        balances: map<address, uint256>;
+        allowances: map<address, map<address, uint256>>;
+        upgradeCount: uint256;
     }
 
-    transaction transfer(address to, uint256 amount)
-    requires amount > 0 && balances[caller] >= amount
-    {
-        preflight {
-            Security.require_no_reentrancy();
-        }
-
-        atomic {
-            balances[caller] -= amount;
-            balances[to] += amount;
-        }
+    constructor(initialSupply: uint256, govAddress: address) {
+        state.owner = msg.sender;
+        state.governance = govAddress;
+        state.name = "Upgradeable Fluid Token";
+        state.symbol = "UFT";
+        state.totalSupply = initialSupply;
+        state.balances[msg.sender] = initialSupply;
+        state.upgradeCount = 0;
     }
 
-    upgrade_policy {
-        authority: governance;
-        timelock: 72h;
-        require_schema_compatibility: true;
-        require_simulation: true;
+    public balanceOf(account: address): uint256 {
+        return state.balances[account];
+    }
+
+    public transfer(to: address, amount: uint256): bool {
+        require(state.balances[msg.sender] >= amount, "UFT: Insufficient balance");
+        state.balances[msg.sender] = state.balances[msg.sender] - amount;
+        state.balances[to] = state.balances[to] + amount;
+        return true;
+    }
+
+    @governance
+    public notifyUpgradeExecuted() {
+        state.upgradeCount = state.upgradeCount + 1;
     }
 }
-```
-
-This example shows the basic shape of an upgradeable Fluid contract.

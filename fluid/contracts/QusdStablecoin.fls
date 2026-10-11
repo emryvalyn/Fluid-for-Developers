@@ -1,26 +1,80 @@
-# QusdStablecoin
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
 
-```fluid
-pragma fluid ^1.0;
-
-contract QusdStablecoin fluid {
+contract QusdStablecoin {
     state persistent {
         owner: address;
-        map<address, uint256> balances;
-        total_supply: uint256;
+        name: string;
+        symbol: string;
+        decimals: uint8;
+        totalSupply: uint256;
+        priceOracle: address;
+        balances: map<address, uint256>;
+        allowances: map<address, map<address, uint256>>;
+        minters: map<address, bool>;
     }
 
-    transaction mint(address to, uint256 amount)
-    requires caller == owner && amount > 0
-    {
-        preflight {
-            Security.require_no_reentrancy();
-        }
+    constructor(oracleAddress: address) {
+        state.owner = msg.sender;
+        state.name = "Questdrium USD Stablecoin";
+        state.symbol = "QUSD";
+        state.decimals = 18;
+        state.totalSupply = 0;
+        state.priceOracle = oracleAddress;
+        state.minters[msg.sender] = true;
+    }
 
-        atomic {
-            balances[to] += amount;
-            total_supply += amount;
-        }
+    public totalSupply(): uint256 {
+        return state.totalSupply;
+    }
+
+    public balanceOf(account: address): uint256 {
+        return state.balances[account];
+    }
+
+    public transfer(to: address, amount: uint256): bool {
+        require(state.balances[msg.sender] >= amount, "QUSD: Insufficient balance");
+        state.balances[msg.sender] = state.balances[msg.sender] - amount;
+        state.balances[to] = state.balances[to] + amount;
+        return true;
+    }
+
+    public approve(spender: address, amount: uint256): bool {
+        state.allowances[msg.sender][spender] = amount;
+        return true;
+    }
+
+    public transferFrom(from: address, to: address, amount: uint256): bool {
+        require(state.balances[from] >= amount, "QUSD: Insufficient balance");
+        require(state.allowances[from][msg.sender] >= amount, "QUSD: Insufficient allowance");
+
+        state.allowances[from][msg.sender] = state.allowances[from][msg.sender] - amount;
+        state.balances[from] = state.balances[from] - amount;
+        state.balances[to] = state.balances[to] + amount;
+        return true;
+    }
+
+    public mint(to: address, amount: uint256): bool {
+        require(state.minters[msg.sender] == true, "QUSD: Caller is not an authorized minter");
+        state.totalSupply = state.totalSupply + amount;
+        state.balances[to] = state.balances[to] + amount;
+        return true;
+    }
+
+    public burn(amount: uint256): bool {
+        require(state.balances[msg.sender] >= amount, "QUSD: Insufficient balance to burn");
+        state.balances[msg.sender] = state.balances[msg.sender] - amount;
+        state.totalSupply = state.totalSupply - amount;
+        return true;
+    }
+
+    @owner
+    public setMinter(minter: address, authorized: bool) {
+        state.minters[minter] = authorized;
+    }
+
+    @owner
+    public setPriceOracle(newOracle: address) {
+        state.priceOracle = newOracle;
     }
 }
-```

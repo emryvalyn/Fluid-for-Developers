@@ -1,25 +1,28 @@
-# Hello World Example
+// Copyright (c) 2026 Questdrium Next-Gen Technologies R&D. Inc., All rights reserved.
+version 1.0;
 
-```fluid
-pragma fluid ^1.0;
-
-contract HelloWorld fluid {
+contract HelloWorld {
     state persistent {
-        string message;
+        owner: address;
+        message: string;
     }
 
-    transaction setMessage(string newMessage)
-    requires newMessage != ""
-    {
-        preflight {
-            Security.require_no_reentrancy();
-        }
+    constructor(initialMessage: string) {
+        state.owner = msg.sender;
+        state.message = initialMessage;
+    }
 
-        atomic {
-            message = newMessage;
-        }
+    public getMessage(): string {
+        return state.message;
+    }
+
+    public setMessage(newMessage: string) {
+        require(newMessage != "", "HelloWorld: Message cannot be empty");
+        state.message = newMessage;
+    }
+
+    @owner
+    public resetMessage() {
+        state.message = "Hello, XOLIX FLUID!";
     }
 }
-```
-
-This is a minimal example to help a new developer understand how a contract is structured.

@@ -1,0 +1,22 @@
+{
+  "name": "xolix-developer-sdk-examples",
+  "version": "1.0.0",
+  "description": "Production-ready examples for third-party developers using @xolix/sdk on XOLIX FLUID",
+  "main": "01-connect-provider.ts",
+  "scripts": {
+    "connect": "ts-node 01-connect-provider.ts",
+    "wallet": "ts-node 02-wallet-management.ts",
+    "deploy": "ts-node 03-deploy-token.ts",
+    "interact": "ts-node 04-interact-contract.ts",
+    "simulate": "ts-node 05-simulate-preflight.ts"
+  },
+  "dependencies": {
+    "@xolix/sdk": "^1.0.0",
+    "ethers": "^6.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
